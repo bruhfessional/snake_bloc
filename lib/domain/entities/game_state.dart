@@ -20,25 +20,33 @@ class GameState {
   });
 
   static GameState initial() {
+    final initialSnake =
+        Snake(segments: [const Offset(5, 5)], direction: Direction.right);
+    const initialFood = Offset(10, 10);
     return GameState(
-      snake: Snake(segments: [Offset(5, 5)], direction: Direction.right),
-      food: const Offset(10, 10),
-      // Randomize food position
-      isGameOver: false,
-      foodCount: 0,
-      walls: _generateRandomWalls(), // Generate walls at initialization
-    );
+        snake: initialSnake,
+        food: const Offset(10, 10),
+        // Randomize food position
+        isGameOver: false,
+        foodCount: 0,
+        walls: _generateRandomWalls(initialSnake, initialFood));
   }
 
   // Method to generate random walls
-  static List<Offset> _generateRandomWalls({int count = 10}) {
+  static List<Offset> _generateRandomWalls(Snake snake, Offset food,
+      {int count = 10}) {
     Random random = Random();
     Set<Offset> wallPositions = {};
 
     while (wallPositions.length < count) {
-      double x = random.nextInt(20).toDouble(); // Assuming grid size is 20
+      double x = random.nextInt(20).toDouble();
       double y = random.nextInt(20).toDouble();
-      wallPositions.add(Offset(x, y));
+      Offset newWall = Offset(x, y);
+
+      // Ensure the new wall does not overlap with the snake or food
+      if (!snake.segments.contains(newWall) && newWall != food) {
+        wallPositions.add(newWall);
+      }
     }
 
     return wallPositions.toList();
