@@ -40,13 +40,46 @@ class GameScreen extends StatelessWidget {
         }
       },
       child: Scaffold(
-        body: BlocBuilder<GameBloc, GameState>(
-          builder: (context, state) {
-            return CustomPaint(
-              painter: GamePainter(state.snake, state.food),
-              child: Container(),
-            );
-          },
+        body: Center(
+          child: Stack(
+            children: [
+              // Border widget
+              Container(
+                width: 420,
+                height: 420,
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.black, width: 4),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              // Game area
+              BlocBuilder<GameBloc, GameState>(
+                builder: (context, state) {
+                  return CustomPaint(
+                    size: Size(400, 400), // Adjust size for game area
+                    painter: GamePainter(state.snake, state.food),
+                  );
+                },
+              ),
+              // Food counter
+              Positioned(
+                top: 10,
+                left: 10,
+                child: BlocBuilder<GameBloc, GameState>(
+                  builder: (context, state) {
+                    return Text(
+                      'Food: ${state.foodCount}',
+                      style: TextStyle(
+                        fontSize: 24,
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -62,10 +95,13 @@ class GamePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()..color = Colors.green;
+
+    // Draw snake
     for (var segment in snake) {
       canvas.drawRect(Rect.fromLTWH(segment.dx * 20, segment.dy * 20, 20, 20), paint);
     }
 
+    // Draw food
     paint.color = Colors.red;
     canvas.drawRect(Rect.fromLTWH(food.dx * 20, food.dy * 20, 20, 20), paint);
   }

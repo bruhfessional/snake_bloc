@@ -16,12 +16,14 @@ class GameState {
   final Offset food;
   final bool isGameOver;
   final String direction;
+  final int foodCount; // Add food count
 
   GameState({
     required this.snake,
     required this.food,
     required this.isGameOver,
     required this.direction,
+    required this.foodCount, // Initialize food count
   });
 }
 
@@ -35,6 +37,7 @@ class GameBloc extends Bloc<dynamic, GameState> {
     food: _generateRandomFood(gridSize),
     isGameOver: false,
     direction: 'right',
+    foodCount: 0, // Initialize food count
   )) {
     on<GameEvent>((event, emit) {
       if (event == GameEvent.start) {
@@ -59,6 +62,7 @@ class GameBloc extends Bloc<dynamic, GameState> {
             food: currentState.food,
             isGameOver: currentState.isGameOver,
             direction: event.direction,
+            foodCount: currentState.foodCount, // Preserve food count
           ));
         }
       }
@@ -107,6 +111,7 @@ class GameBloc extends Bloc<dynamic, GameState> {
         food: _generateRandomFood(gridSize),
         isGameOver: false,
         direction: currentState.direction,
+        foodCount: currentState.foodCount + 1, // Increment food count
       ));
     } else {
       // Move snake
@@ -123,6 +128,7 @@ class GameBloc extends Bloc<dynamic, GameState> {
           food: currentState.food,
           isGameOver: false,
           direction: currentState.direction,
+          foodCount: currentState.foodCount, // Preserve food count
         ));
       }
     }
@@ -134,6 +140,7 @@ class GameBloc extends Bloc<dynamic, GameState> {
       food: _generateRandomFood(gridSize),
       isGameOver: false,
       direction: 'right',
+      foodCount: 0, // Reset food count
     ));
     _startGame();
   }
