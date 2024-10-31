@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'dart:ui';
 import 'game_bloc.dart';
 
 void main() {
@@ -8,6 +7,8 @@ void main() {
 }
 
 class SnakeGame extends StatelessWidget {
+  const SnakeGame({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -22,21 +23,23 @@ class SnakeGame extends StatelessWidget {
 }
 
 class GameScreen extends StatelessWidget {
+  const GameScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onVerticalDragUpdate: (details) {
         if (details.delta.dy > 0) {
-          context.read<GameBloc>().add(ChangeDirectionEvent('down'));
+          context.read<GameBloc>().add(ChangeDirectionEvent(Direction.down));
         } else {
-          context.read<GameBloc>().add(ChangeDirectionEvent('up'));
+          context.read<GameBloc>().add(ChangeDirectionEvent(Direction.up));
         }
       },
       onHorizontalDragUpdate: (details) {
         if (details.delta.dx > 0) {
-          context.read<GameBloc>().add(ChangeDirectionEvent('right'));
+          context.read<GameBloc>().add(ChangeDirectionEvent(Direction.right));
         } else {
-          context.read<GameBloc>().add(ChangeDirectionEvent('left'));
+          context.read<GameBloc>().add(ChangeDirectionEvent(Direction.left));
         }
       },
       child: Scaffold(
@@ -69,7 +72,7 @@ class GameScreen extends StatelessWidget {
                   builder: (context, state) {
                     return Text(
                       'Food: ${state.foodCount}',
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 24,
                         color: Colors.black,
                         fontWeight: FontWeight.bold,
@@ -98,7 +101,8 @@ class GamePainter extends CustomPainter {
 
     // Draw snake
     for (var segment in snake) {
-      canvas.drawRect(Rect.fromLTWH(segment.dx * 20, segment.dy * 20, 20, 20), paint);
+      canvas.drawRect(
+          Rect.fromLTWH(segment.dx * 20, segment.dy * 20, 20, 20), paint);
     }
 
     // Draw food

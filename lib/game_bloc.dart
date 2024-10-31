@@ -5,8 +5,10 @@ import 'package:flutter/material.dart';
 
 enum GameEvent { start, move, restart }
 
+enum Direction { up, down, left, right }
+
 class ChangeDirectionEvent {
-  final String direction;
+  final Direction direction;
 
   ChangeDirectionEvent(this.direction);
 }
@@ -15,15 +17,15 @@ class GameState {
   final List<Offset> snake;
   final Offset food;
   final bool isGameOver;
-  final String direction;
-  final int foodCount; // Add food count
+  final Direction direction;
+  final int foodCount;
 
   GameState({
     required this.snake,
     required this.food,
     required this.isGameOver,
     required this.direction,
-    required this.foodCount, // Initialize food count
+    required this.foodCount,
   });
 }
 
@@ -33,12 +35,12 @@ class GameBloc extends Bloc<dynamic, GameState> {
 
   GameBloc(this.gridSize)
       : super(GameState(
-    snake: [Offset(5, 5)],
-    food: _generateRandomFood(gridSize),
-    isGameOver: false,
-    direction: 'right',
-    foodCount: 0, // Initialize food count
-  )) {
+          snake: [Offset(5, 5)],
+          food: _generateRandomFood(gridSize),
+          isGameOver: false,
+          direction: Direction.right,
+          foodCount: 0,
+        )) {
     on<GameEvent>((event, emit) {
       if (event == GameEvent.start) {
         _startGame();
@@ -52,17 +54,21 @@ class GameBloc extends Bloc<dynamic, GameState> {
     on<ChangeDirectionEvent>((event, emit) {
       final currentState = state;
       if (!currentState.isGameOver) {
-        // Prevent opposite direction change
-        if ((event.direction == 'up' && currentState.direction != 'down') ||
-            (event.direction == 'down' && currentState.direction != 'up') ||
-            (event.direction == 'left' && currentState.direction != 'right') ||
-            (event.direction == 'right' && currentState.direction != 'left')) {
+        if ((event.direction == Direction.up &&
+                currentState.direction != Direction.down) ||
+            (event.direction == Direction.down &&
+                currentState.direction != Direction.up) ||
+            (event.direction == Direction.left &&
+                currentState.direction != Direction.right) ||
+            (event.direction == Direction.right &&
+                currentState.direction != Direction.left)) {
           emit(GameState(
             snake: currentState.snake,
             food: currentState.food,
             isGameOver: currentState.isGameOver,
             direction: event.direction,
-            foodCount: currentState.foodCount, // Preserve food count
+            // Use enum
+            foodCount: currentState.foodCount,
           ));
         }
       }
@@ -71,7 +77,7 @@ class GameBloc extends Bloc<dynamic, GameState> {
 
   void _startGame() {
     _timer?.cancel();
-    _timer = Timer.periodic(Duration(milliseconds: 200), (timer) {
+    _timer = Timer.periodic(const Duration(milliseconds: 200), (timer) {
       add(GameEvent.move);
     });
   }
@@ -83,42 +89,41 @@ class GameBloc extends Bloc<dynamic, GameState> {
     Offset newHead = currentState.snake.first;
 
     switch (currentState.direction) {
-      case 'up':
+      case Direction.up:
         newHead = Offset(newHead.dx, newHead.dy - 1);
         break;
-      case 'down':
+      case Direction.down:
         newHead = Offset(newHead.dx, newHead.dy + 1);
         break;
-      case 'left':
+      case Direction.left:
         newHead = Offset(newHead.dx - 1, newHead.dy);
         break;
-      case 'right':
+      case Direction.right:
         newHead = Offset(newHead.dx + 1, newHead.dy);
         break;
     }
 
-    // Check for collisions with the walls
-    if (newHead.dx < 0 || newHead.dx >= gridSize || newHead.dy < 0 || newHead.dy >= gridSize) {
+    if (newHead.dx < 0 ||
+        newHead.dx >= gridSize ||
+        newHead.dy < 0 ||
+        newHead.dy >= gridSize) {
       print("Game Over: Collided with wall");
       _resetGame(emit);
       return;
     }
 
-    // Check for food collision
     if (newHead == currentState.food) {
       emit(GameState(
         snake: [newHead, ...currentState.snake],
         food: _generateRandomFood(gridSize),
         isGameOver: false,
         direction: currentState.direction,
-        foodCount: currentState.foodCount + 1, // Increment food count
+        foodCount: currentState.foodCount + 1,
       ));
     } else {
-      // Move snake
       final newSnake = [newHead, ...currentState.snake];
       newSnake.removeLast();
 
-      // Check for self-collision
       if (_isGameOver(newHead, newSnake)) {
         print("Game Over: Collided with itself");
         _resetGame(emit);
@@ -128,7 +133,7 @@ class GameBloc extends Bloc<dynamic, GameState> {
           food: currentState.food,
           isGameOver: false,
           direction: currentState.direction,
-          foodCount: currentState.foodCount, // Preserve food count
+          foodCount: currentState.foodCount,
         ));
       }
     }
@@ -139,8 +144,8 @@ class GameBloc extends Bloc<dynamic, GameState> {
       snake: [Offset(5, 5)],
       food: _generateRandomFood(gridSize),
       isGameOver: false,
-      direction: 'right',
-      foodCount: 0, // Reset food count
+      direction: Direction.right,
+      foodCount: 0,
     ));
     _startGame();
   }
