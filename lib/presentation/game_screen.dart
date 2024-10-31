@@ -42,8 +42,12 @@ class GameScreen extends StatelessWidget {
               BlocBuilder<GameBloc, GameState>(
                 builder: (context, state) {
                   return CustomPaint(
-                    size: const Size(400, 400), // Adjust size for game area
-                    painter: GamePainter(state.snake.segments, state.food),
+                    size: const Size(400, 400),
+                    painter: GamePainter(
+                      state.snake.segments,
+                      state.food,
+                      state.walls,
+                    ), // Pass walls
                   );
                 },
               ),
@@ -75,8 +79,9 @@ class GameScreen extends StatelessWidget {
 class GamePainter extends CustomPainter {
   final List<Offset> snake;
   final Offset food;
+  final List<Offset> walls; // Add walls parameter
 
-  GamePainter(this.snake, this.food);
+  GamePainter(this.snake, this.food, this.walls);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -91,6 +96,12 @@ class GamePainter extends CustomPainter {
     // Draw food
     paint.color = Colors.red;
     canvas.drawRect(Rect.fromLTWH(food.dx * 20, food.dy * 20, 20, 20), paint);
+
+    // Draw walls
+    paint.color = Colors.black; // Color for walls
+    for (var wall in walls) {
+      canvas.drawRect(Rect.fromLTWH(wall.dx * 20, wall.dy * 20, 20, 20), paint);
+    }
   }
 
   @override

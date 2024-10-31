@@ -55,16 +55,17 @@ class GameBloc extends Bloc<dynamic, GameState> {
     });
   }
 
-  Future<void> _moveSnake(Emitter<GameState> emit) async {
+  void _moveSnake(Emitter<GameState> emit) {
     final currentState = state;
     if (currentState.isGameOver) return;
 
     // Move the snake
     currentState.snake.move();
 
-    // Check for collisions
+    // Check for collisions with walls
     final head = currentState.snake.segments.first;
-    if (head.dx < 0 ||
+    if (currentState.walls.contains(head) ||
+        head.dx < 0 ||
         head.dx >= gridSize ||
         head.dy < 0 ||
         head.dy >= gridSize ||
@@ -79,12 +80,13 @@ class GameBloc extends Bloc<dynamic, GameState> {
 
     // Check for food collision
     if (head == currentState.food) {
-      currentState.snake.grow(); // Optionally, implement grow logic
+      currentState.snake.grow(); // Implement grow logic
       emit(GameState(
         snake: currentState.snake,
         food: _generateRandomFood(gridSize),
         isGameOver: false,
         foodCount: currentState.foodCount + 1,
+        walls: currentState.walls,
       ));
     } else {
       emit(GameState(
@@ -94,6 +96,7 @@ class GameBloc extends Bloc<dynamic, GameState> {
         food: currentState.food,
         isGameOver: false,
         foodCount: currentState.foodCount,
+        walls: currentState.walls,
       ));
     }
   }
