@@ -11,22 +11,23 @@ class Snake {
   });
 
   void move() {
+    const step = 1;
     if (segments.isEmpty) return; // Prevent moving if the snake has no segments
 
     Offset newHead = segments.first;
 
     switch (direction) {
       case Direction.up:
-        newHead = Offset(newHead.dx, newHead.dy - 1);
+        newHead = Offset(newHead.dx, newHead.dy - step);
         break;
       case Direction.down:
-        newHead = Offset(newHead.dx, newHead.dy + 1);
+        newHead = Offset(newHead.dx, newHead.dy + step);
         break;
       case Direction.left:
-        newHead = Offset(newHead.dx - 1, newHead.dy);
+        newHead = Offset(newHead.dx - step, newHead.dy);
         break;
       case Direction.right:
-        newHead = Offset(newHead.dx + 1, newHead.dy);
+        newHead = Offset(newHead.dx + step, newHead.dy);
         break;
     }
 

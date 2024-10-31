@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import '../../core/utils/constants.dart';
 import '../enums/direction_enum.dart';
 import 'snake.dart';
 
@@ -28,7 +29,7 @@ class GameState {
       food: initialFood,
       isGameOver: false,
       foodCount: 0,
-      // walls: _generateMaze(20, 20),
+      // walls: _generateMaze(AppConstants.gridSize, AppConstants.gridSize),
       walls: _generateRandomWalls(initialSnake, initialFood),
     );
   }
@@ -76,13 +77,14 @@ class GameState {
   }
 
   static List<Offset> _generateRandomWalls(Snake snake, Offset food,
-      {int count = 10}) {
+      {int count = 20}) {
     Random random = Random();
     Set<Offset> wallPositions = {};
 
     while (wallPositions.length < count) {
-      double x = random.nextInt(20).toDouble();
-      double y = random.nextInt(20).toDouble();
+      // TODO: fix this dumb thing
+      double x = random.nextInt(AppConstants.gridSize.toInt()).toDouble();
+      double y = random.nextInt(AppConstants.gridSize.toInt()).toDouble();
       Offset newWall = Offset(x, y);
 
       // Ensure the new wall does not overlap with the snake or food

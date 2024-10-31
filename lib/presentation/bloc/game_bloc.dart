@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 import 'dart:ui';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../core/utils/constants.dart';
 import '../../domain/entities/game_state.dart';
 import '../../domain/entities/snake.dart';
 import '../../domain/enums/direction_enum.dart';
@@ -16,7 +17,6 @@ class ChangeDirectionEvent {
 
 class GameBloc extends Bloc<dynamic, GameState> {
   Timer? _timer;
-  static const int gridSize = 20;
 
   GameBloc() : super(GameState.initial()) {
     on<GameEvent>((event, emit) {
@@ -49,8 +49,9 @@ class GameBloc extends Bloc<dynamic, GameState> {
   }
 
   void _startGame(Emitter<GameState> emit) {
+    const tick = Duration(milliseconds: 200);
     _timer?.cancel();
-    _timer = Timer.periodic(const Duration(milliseconds: 200), (timer) {
+    _timer = Timer.periodic(tick, (timer) {
       add(GameEvent.move);
     });
   }
@@ -66,9 +67,9 @@ class GameBloc extends Bloc<dynamic, GameState> {
     final head = currentState.snake.segments.first;
     if (currentState.walls.contains(head) ||
         head.dx < 0 ||
-        head.dx >= gridSize ||
+        head.dx >= AppConstants.gridSize ||
         head.dy < 0 ||
-        head.dy >= gridSize ||
+        head.dy >= AppConstants.gridSize ||
         _isSelfCollision(currentState.snake)) {
       emit(currentState.copyWith(isGameOver: true));
       // await _restartGameAfterDelay(emit);
@@ -83,7 +84,7 @@ class GameBloc extends Bloc<dynamic, GameState> {
       currentState.snake.grow(); // Implement grow logic
       emit(GameState(
         snake: currentState.snake,
-        food: _generateRandomFood(gridSize),
+        food: _generateRandomFood(AppConstants.gridSize.toInt()),
         isGameOver: false,
         foodCount: currentState.foodCount + 1,
         walls: currentState.walls,
