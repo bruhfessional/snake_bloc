@@ -72,6 +72,14 @@ class GameBloc extends Bloc<dynamic, GameState> {
       return;
     }
 
+    if (currentState.snake.segments
+        .getRange(1, currentState.snake.segments.length - 1)
+        .contains(head)) {
+      emit(currentState.copyWith(isGameOver: true));
+      _restartGameAfterDelay(emit);
+      return;
+    }
+
     // Check for food collision
     if (head == currentState.food) {
       currentState.snake.grow();
