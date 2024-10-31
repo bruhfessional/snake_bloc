@@ -1,4 +1,5 @@
 import '../entities/game_state.dart';
+import '../enums/direction_enum.dart';
 
 class UpdateGameState {
   final GameState currentState;
