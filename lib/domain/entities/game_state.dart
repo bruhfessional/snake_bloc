@@ -1,9 +1,11 @@
 import 'dart:ui';
+
+import 'package:snake/domain/entities/snake.dart';
+
 import '../enums/direction_enum.dart';
-import 'snake.dart'; // Import the Snake class
 
 class GameState {
-  final Snake snake; // Use the Snake entity
+  final Snake snake;
   final Offset food;
   final bool isGameOver;
   final int foodCount;

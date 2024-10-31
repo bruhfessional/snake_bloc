@@ -55,10 +55,11 @@ class GameBloc extends Bloc<dynamic, GameState> {
     });
   }
 
-  void _moveSnake(Emitter<GameState> emit) {
+  Future<void> _moveSnake(Emitter<GameState> emit) async {
     final currentState = state;
     if (currentState.isGameOver) return;
 
+    // Move the snake
     currentState.snake.move();
 
     // Check for collisions
@@ -66,23 +67,19 @@ class GameBloc extends Bloc<dynamic, GameState> {
     if (head.dx < 0 ||
         head.dx >= gridSize ||
         head.dy < 0 ||
-        head.dy >= gridSize) {
+        head.dy >= gridSize ||
+        _isSelfCollision(currentState.snake)) {
       emit(currentState.copyWith(isGameOver: true));
-      _restartGameAfterDelay(emit);
-      return;
-    }
+      // await _restartGameAfterDelay(emit);
+      emit(GameState.initial());
+      _startGame(emit);
 
-    if (currentState.snake.segments
-        .getRange(1, currentState.snake.segments.length - 1)
-        .contains(head)) {
-      emit(currentState.copyWith(isGameOver: true));
-      _restartGameAfterDelay(emit);
       return;
     }
 
     // Check for food collision
     if (head == currentState.food) {
-      currentState.snake.grow();
+      currentState.snake.grow(); // Optionally, implement grow logic
       emit(GameState(
         snake: currentState.snake,
         food: _generateRandomFood(gridSize),
@@ -101,11 +98,18 @@ class GameBloc extends Bloc<dynamic, GameState> {
     }
   }
 
-  void _restartGameAfterDelay(Emitter<GameState> emit) {
-    Future.delayed(const Duration(seconds: 2), () {
-      _resetGame(emit);
-    });
+  bool _isSelfCollision(Snake snake) {
+    final head = snake.segments.first;
+    return snake.segments
+        .skip(1)
+        .contains(head); // Check if head collides with the rest of the snake
   }
+
+  // Future<void> _restartGameAfterDelay(Emitter<GameState> emit) async {
+  //   await Future.delayed(const Duration(seconds: 2), () {
+  //     _resetGame(emit);
+  //   });
+  // }
 
   void _resetGame(Emitter<GameState> emit) {
     emit(GameState.initial());
