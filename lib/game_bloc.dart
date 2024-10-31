@@ -32,7 +32,7 @@ class GameBloc extends Bloc<dynamic, GameState> {
   GameBloc(this.gridSize)
       : super(GameState(
     snake: [Offset(5, 5)],
-    food: Offset(10, 10),
+    food: _generateRandomFood(gridSize),
     isGameOver: false,
     direction: 'right',
   )) {
@@ -40,13 +40,7 @@ class GameBloc extends Bloc<dynamic, GameState> {
       if (event == GameEvent.start) {
         _startGame();
       } else if (event == GameEvent.restart) {
-        emit(GameState(
-          snake: [Offset(5, 5)],
-          food: _generateFood(),
-          isGameOver: false,
-          direction: 'right',
-        ));
-        _startGame();
+        _resetGame(emit);
       } else if (event == GameEvent.move) {
         _moveSnake(emit);
       }
@@ -99,24 +93,30 @@ class GameBloc extends Bloc<dynamic, GameState> {
         break;
     }
 
+    // Check for collisions with the walls
+    if (newHead.dx < 0 || newHead.dx >= gridSize || newHead.dy < 0 || newHead.dy >= gridSize) {
+      print("Game Over: Collided with wall");
+      _resetGame(emit);
+      return;
+    }
+
+    // Check for food collision
     if (newHead == currentState.food) {
       emit(GameState(
         snake: [newHead, ...currentState.snake],
-        food: _generateFood(),
+        food: _generateRandomFood(gridSize),
         isGameOver: false,
         direction: currentState.direction,
       ));
     } else {
+      // Move snake
       final newSnake = [newHead, ...currentState.snake];
       newSnake.removeLast();
 
-      if (_isGameOver(newHead)) {
-        emit(GameState(
-          snake: newSnake,
-          food: currentState.food,
-          isGameOver: true,
-          direction: currentState.direction,
-        ));
+      // Check for self-collision
+      if (_isGameOver(newHead, newSnake)) {
+        print("Game Over: Collided with itself");
+        _resetGame(emit);
       } else {
         emit(GameState(
           snake: newSnake,
@@ -128,18 +128,24 @@ class GameBloc extends Bloc<dynamic, GameState> {
     }
   }
 
-  Offset _generateFood() {
+  void _resetGame(Emitter<GameState> emit) {
+    emit(GameState(
+      snake: [Offset(5, 5)],
+      food: _generateRandomFood(gridSize),
+      isGameOver: false,
+      direction: 'right',
+    ));
+    _startGame();
+  }
+
+  static Offset _generateRandomFood(int gridSize) {
     Random random = Random();
     return Offset(random.nextInt(gridSize).toDouble(),
         random.nextInt(gridSize).toDouble());
   }
 
-  bool _isGameOver(Offset head) {
-    return head.dx < 0 ||
-        head.dx >= gridSize ||
-        head.dy < 0 ||
-        head.dy >= gridSize ||
-        state.snake.skip(1).contains(head);
+  bool _isGameOver(Offset head, List<Offset> snake) {
+    return snake.skip(1).contains(head);
   }
 
   @override
