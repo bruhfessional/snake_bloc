@@ -7,7 +7,7 @@ import '../../domain/entities/game_state.dart';
 import '../../domain/entities/snake.dart';
 import '../../domain/enums/direction_enum.dart';
 
-enum GameEvent { start, move, restart }
+enum GameEvent { start, pause, move, restart }
 
 class ChangeDirectionEvent {
   final Direction direction;
@@ -26,6 +26,8 @@ class GameBloc extends Bloc<dynamic, GameState> {
         _resetGame(emit);
       } else if (event == GameEvent.move) {
         _moveSnake(emit);
+      } else if (event == GameEvent.pause) {
+        _pauseGame(emit);
       }
     });
 
@@ -56,6 +58,12 @@ class GameBloc extends Bloc<dynamic, GameState> {
     });
   }
 
+  void _pauseGame(Emitter<GameState> emit) {
+    final currentState = state;
+    emit(currentState.copyWith(isPaused: true));
+    _timer?.cancel();
+  }
+
   void _moveSnake(Emitter<GameState> emit) {
     final currentState = state;
     if (currentState.isGameOver) return;
@@ -84,8 +92,10 @@ class GameBloc extends Bloc<dynamic, GameState> {
       currentState.snake.grow(); // Implement grow logic
       emit(GameState(
         snake: currentState.snake,
-        food: _generateRandomFood(AppConstants.gridSize.toInt()),
+        food: _generateRandomFood(AppConstants.gridSize.toInt(),
+            currentState.snake, currentState.food, currentState.walls),
         isGameOver: false,
+        isPaused: false,
         foodCount: currentState.foodCount + 1,
         walls: currentState.walls,
       ));
@@ -96,6 +106,7 @@ class GameBloc extends Bloc<dynamic, GameState> {
             direction: currentState.snake.direction),
         food: currentState.food,
         isGameOver: false,
+        isPaused: false,
         foodCount: currentState.foodCount,
         walls: currentState.walls,
       ));
@@ -109,21 +120,31 @@ class GameBloc extends Bloc<dynamic, GameState> {
         .contains(head); // Check if head collides with the rest of the snake
   }
 
-  // Future<void> _restartGameAfterDelay(Emitter<GameState> emit) async {
-  //   await Future.delayed(const Duration(seconds: 2), () {
-  //     _resetGame(emit);
-  //   });
-  // }
-
   void _resetGame(Emitter<GameState> emit) {
     emit(GameState.initial());
     _startGame(emit);
   }
 
-  Offset _generateRandomFood(int gridSize) {
+  Offset _generateRandomFood(
+      int gridSize, Snake snake, Offset food, List<Offset> walls) {
     Random random = Random();
-    return Offset(random.nextInt(gridSize).toDouble(),
-        random.nextInt(gridSize).toDouble());
+    const count = 10;
+    Set<Offset> foodPositions = {};
+
+    while (foodPositions.length < count) {
+      // TODO: fix this dumb thing
+      double x = random.nextInt(AppConstants.gridSize.toInt()).toDouble();
+      double y = random.nextInt(AppConstants.gridSize.toInt()).toDouble();
+      Offset newFood = Offset(x, y);
+
+      // Ensure the new wall does not overlap with the snake or food
+      if (!snake.segments.contains(newFood) &&
+          newFood != food &&
+          !walls.contains(newFood)) {
+        foodPositions.add(newFood);
+      }
+    }
+    return foodPositions.first;
   }
 
   @override

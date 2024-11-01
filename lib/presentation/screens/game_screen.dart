@@ -36,20 +36,63 @@ class GameScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Food counter
-                  Text(
-                    'Food: ${state.foodCount}',
-                    style: const TextStyle(
-                      fontSize: 24,
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  const Spacer(),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // Food counter
+                      Text(
+                        'Food: ${state.foodCount}',
+                        style: const TextStyle(
+                          fontSize: 24,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+
+                      if (state.isPaused)
+                        TextButton(
+                          onPressed: () {
+                            context.read<GameBloc>().add(GameEvent.start);
+                          },
+                          child: const Row(
+                            children: [
+                              Text(
+                                'Paused',
+                                style: const TextStyle(
+                                  fontSize: 24,
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Icon(Icons.play_arrow)
+                            ],
+                          ),
+                        )
+                      else
+                        TextButton(
+                          onPressed: () {
+                            context.read<GameBloc>().add(GameEvent.pause);
+                          },
+                          child: const Row(
+                            children: [
+                              Text(
+                                'Running',
+                                style: const TextStyle(
+                                  fontSize: 24,
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Icon(Icons.pause)
+                            ],
+                          ),
+                        )
+                    ],
                   ),
 
                   // Border widget
                   Container(
-                    // width: 400,
-                    // height: 400,
                     decoration: BoxDecoration(
                       border: Border.all(color: Colors.black, width: 4),
                       borderRadius: BorderRadius.circular(10),
@@ -65,6 +108,7 @@ class GameScreen extends StatelessWidget {
                       ), // Pass walls
                     ),
                   ),
+                  const Spacer(),
                 ],
               );
             },

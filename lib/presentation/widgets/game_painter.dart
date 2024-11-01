@@ -14,14 +14,16 @@ class GamePainter extends CustomPainter {
     final paint = Paint()..color = Colors.green;
 
     // Draw snake
-    for (var segment in snake) {
+    // for (var segment in snake) {
+    for (int i = 0; i < snake.length; i++) {
       canvas.drawRect(
           Rect.fromLTWH(
-              segment.dx * AppConstants.gridSize,
-              segment.dy * AppConstants.gridSize,
+              snake[i].dx * AppConstants.gridSize,
+              snake[i].dy * AppConstants.gridSize,
               AppConstants.gridSize,
               AppConstants.gridSize),
-          paint);
+          // paint,
+          Paint()..color = Color.fromRGBO(0, 240 - i * 3, 0, 1));
     }
 
     // Draw food

@@ -8,6 +8,7 @@ class GameState {
   final Snake snake;
   final Offset food;
   final bool isGameOver;
+  final bool isPaused;
   final int foodCount;
   final List<Offset> walls; // List to hold wall positions
 
@@ -15,6 +16,7 @@ class GameState {
     required this.snake,
     required this.food,
     required this.isGameOver,
+    required this.isPaused,
     required this.foodCount,
     required this.walls,
   });
@@ -28,6 +30,7 @@ class GameState {
       snake: initialSnake,
       food: initialFood,
       isGameOver: false,
+      isPaused: false,
       foodCount: 0,
       // walls: _generateMaze(AppConstants.gridSize, AppConstants.gridSize),
       walls: _generateRandomWalls(initialSnake, initialFood),
@@ -100,6 +103,7 @@ class GameState {
     Snake? snake,
     Offset? food,
     bool? isGameOver,
+    bool? isPaused,
     int? foodCount,
     List<Offset>? walls,
   }) {
@@ -107,6 +111,7 @@ class GameState {
       snake: snake ?? this.snake,
       food: food ?? this.food,
       isGameOver: isGameOver ?? this.isGameOver,
+      isPaused: isPaused ?? this.isPaused,
       foodCount: foodCount ?? this.foodCount,
       walls: walls ?? this.walls,
     );
